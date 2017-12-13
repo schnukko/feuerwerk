@@ -1,19 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-003_static_blit_pretty.py
-static blitting and drawing (pretty version)
-url: http://thepythongamebook.com/en:part2:pygame:step003
-author: horst.jens@spielend-programmieren.at
+feuerwerk, a python3/pygame version of missle defense
+
+github: https://github.com/horstjens/feuerwerk/
+author: horstjens@gmail.com
 licence: gpl, see http://www.gnu.org/licenses/gpl.html
-
-works with pyhton3.4 and python2.7
-
-Blitting a surface on a static position
-Drawing a filled circle into ballsurface.
-Blitting this surface once.
-introducing pygame draw methods
-The ball's rectangular surface is black because the background
-color of the ball's surface was never defined nor filled."""
+"""
 
 import random
 import pygame 
@@ -30,16 +22,19 @@ import vectorclass2d as v
 class VectorSprite(pygame.sprite.Sprite):
     pointlist = []
     
-    def __init__(self, pos=v.Vec2d(100,100), move=v.Vec2d(50,0)):
+    def __init__(self, pos=v.Vec2d(100,100), move=v.Vec2d(50,0),
+                 color=(255,0,0)):
         self._layer = 1
         pygame.sprite.Sprite.__init__(self, self.groups)
         self.pos = v.Vec2d(pos.x, pos.y)
         self.move = v.Vec2d(move.x, move.y)
+        self.color = color
         self.create_image()
         self.rect = self.image.get_rect()
         self.rect.center = self.pos.x, self.pos.y
         self.lifetime = None
         self.age = 0
+        
     
     
     def update(self, seconds):
@@ -66,9 +61,128 @@ class VectorSprite(pygame.sprite.Sprite):
             if point.y > maxy:
                 maxy = point.y
         self.image = pygame.Surface((maxx, maxy))
-        pygame.draw.circle(self.image, (255,0,0), (2,2), 2)
+        pygame.draw.circle(self.image, self.color, (2,2), 2)
         self.image.convert_alpha()  
-        
+  
+class Ufo(VectorSprite):
+  
+    def update(self, seconds):
+        # --- animate ---
+        i = self.image = self.age % 3
+        self.image = self.images[int(i)]
+        # --- chance to change move vector ---
+        if random.random() < 0.001:
+            self.move=v.Vec2d(random.randint(-80,80),
+                              random.randint(-80,80))
+        # --- bounce on screen edge ---
+        if self.pos.x < 0:
+            self.pos.x = 0
+            self.move.x *= -1
+        elif self.pos.x > PygView.width:
+            self.pos.x = PygView.width
+            self.move.x *= -1
+        if self.pos.y < 0:
+            self.pos.y = 0
+            self.move.y *= -1
+        elif self.pos.y > PygView.height:
+            self.pos.y = PygView.height
+            self.pos.y *= -1
+        VectorSprite.update(self, seconds)
+  
+    def create_image(self):
+        #----------image0--------------------
+        self.image0 = pygame.Surface((200, 200))
+       # pygame.draw.line(self.image, (0,0,255), (15, 50), (85, 50),6)
+        pygame.draw.line(self.image0, self.color, (65, 100), (75, 75),3)
+        pygame.draw.line(self.image0, self.color, (65, 100), (75, 125),3)
+        pygame.draw.line(self.image0, self.color, (135, 100), (125, 75),3)
+        pygame.draw.line(self.image0, self.color, (135, 100), (125, 125),3)
+        pygame.draw.line(self.image0, self.color, (75, 75), (125, 75),3)
+        pygame.draw.line(self.image0, self.color, (75, 125), (125, 125),3)
+        pygame.draw.circle(self.image0, (255,255,0), (100,100), (7),2)
+        pygame.draw.circle(self.image0, (255,255,255), (80,100), (7),2)
+        pygame.draw.circle(self.image0, (255,255,255), (120,100), (7),2)
+        pygame.draw.line(self.image0, self.color, (85,75),(65,55),2)
+        pygame.draw.line(self.image0, self.color, (115,75),(135,55),2)
+      #  pygame.draw.line(self.image0, self.color, (45,25),(30,5),2)
+       # pygame.draw.line(self.image0, self.color, (55,25),(70,5),2)
+       # pygame.draw.line(self.image0, self.color, (35,75),(15,95),2)
+       # pygame.draw.line(self.image0, self.color, (65,75),(85,95),2)
+        pygame.draw.line(self.image0, self.color, (95,125),(70,145),2)
+        pygame.draw.line(self.image0, self.color, (115,125),(130,145),2)
+        pygame.draw.line(self.image0, self.color, (65,145),(70,145),2)
+        pygame.draw.line(self.image0, self.color, (135,145),(130,145),2)
+        # kanone
+        pygame.draw.line(self.image0, (255,255,255), (67,95),(25,95))
+        pygame.draw.line(self.image0, (255,255,255), (25,95),(25,105))
+        pygame.draw.line(self.image0, (255,255,255), (25,105),(67,105))
+       # pygame.draw.circle(self.image0, (255,255,0),(20,100),5)
+        self.image0.set_colorkey((0,0,0))
+        self.image0.convert_alpha()
+        #-------------image1------------------------
+        self.image1 = pygame.Surface((200,200))
+       # pygame.draw.line(self.image, (0,0,255), (15, 50), (85, 50),6)
+        pygame.draw.line(self.image1, self.color, (65, 100), (75, 75),3)
+        pygame.draw.line(self.image1, self.color, (65, 100), (75, 125),3)
+        pygame.draw.line(self.image1, self.color, (135, 100), (125, 75),3)
+        pygame.draw.line(self.image1, self.color, (135, 100), (125, 125),3)
+        pygame.draw.line(self.image1, self.color, (75, 75), (125, 75),3)
+        pygame.draw.line(self.image1, self.color, (75, 125), (125, 125),3)
+        pygame.draw.circle(self.image1, (255,0,255), (100,100), (7),2)
+        pygame.draw.circle(self.image1, (0,255,255), (80,100), (7),2)
+        pygame.draw.circle(self.image1, (255,255,0), (120,100), (7),2)
+        pygame.draw.line(self.image1, self.color, (85,75),(65,55),2)
+        pygame.draw.line(self.image1, self.color, (115,75),(135,55),2)
+      #  pygame.draw.line(self.image1, self.color, (45,25),(30,5),2)
+       # pygame.draw.line(self.image1, self.color, (55,25),(70,5),2)
+       # pygame.draw.line(self.image1, self.color, (35,75),(15,95),2)
+       # pygame.draw.line(self.image1, self.color, (65,75),(85,95),2)
+        pygame.draw.line(self.image1, self.color, (95,125),(70,145),2)
+        pygame.draw.line(self.image1, self.color, (115,125),(130,145),2)
+        pygame.draw.line(self.image1, self.color, (65,145),(70,145),2)
+        pygame.draw.line(self.image1, self.color, (135,145),(130,145),2)
+        # kanone
+        pygame.draw.line(self.image1, (255,255,255), (167,95),(125,95))
+        pygame.draw.line(self.image1, (255,255,255), (125,95),(125,105))
+        pygame.draw.line(self.image1, (255,255,255), (125,105),(167,105))
+        #pygame.draw.circle(self.image1, (255,255,0),(20,100),5)
+        #pygame.draw.line(self.image, 
+        self.image1.set_colorkey((0,0,0))
+        self.image1.convert_alpha() 
+        #----------------image2-------------------
+    
+        self.image2 = pygame.Surface((200, 200))
+       # pygame.draw.line(self.image, (0,0,255), (15, 50), (85, 50),6)
+        pygame.draw.line(self.image2, self.color, (65, 100), (75, 75),3)
+        pygame.draw.line(self.image2, self.color, (65, 100), (75, 125),3)
+        pygame.draw.line(self.image2, self.color, (135, 100), (125, 75),3)
+        pygame.draw.line(self.image2, self.color, (135, 100), (125, 125),3)
+        pygame.draw.line(self.image2, self.color, (75, 75), (125, 75),3)
+        pygame.draw.line(self.image2, self.color, (75, 125), (125, 125),3)
+        pygame.draw.circle(self.image2, (255,255,0), (100,100), (7),2)
+        pygame.draw.circle(self.image2, (255,255,255), (80,100), (7),2)
+        pygame.draw.circle(self.image2, (255,255,255), (120,100), (7),2)
+        pygame.draw.line(self.image2, self.color, (85,75),(65,55),2)
+        pygame.draw.line(self.image2, self.color, (115,75),(135,55),2)
+      #  pygame.draw.line(self.image, self.color, (45,25),(30,5),2)
+       # pygame.draw.line(self.image, self.color, (55,25),(70,5),2)
+       # pygame.draw.line(self.image, self.color, (35,75),(15,95),2)
+       # pygame.draw.line(self.image, self.color, (65,75),(85,95),2)
+        pygame.draw.line(self.image2, self.color, (95,125),(70,145),2)
+        pygame.draw.line(self.image2, self.color, (115,125),(130,145),2)
+        pygame.draw.line(self.image2, self.color, (65,145),(70,145),2)
+        pygame.draw.line(self.image2, self.color, (135,145),(130,145),2)
+        # kanone
+        pygame.draw.line(self.image2, (255,255,255), (95,125),(95,145))
+        pygame.draw.line(self.image2, (255,255,255), (95,145),(105,145))
+        pygame.draw.line(self.image2, (255,255,255), (105,145),(105,125))
+        #pygame.draw.circle(self.image2, (255,255,0),(20,100),5)
+        #pygame.draw.line(self.image, 
+        self.image2.set_colorkey((0,0,0))
+        self.image2.convert_alpha() 
+        #---------------------------
+        self.images = [self.image0, self.image1, self.image2]
+        self.image = self.images[0]
 class Fragment(VectorSprite):
     def __init__(self, pos=v.Vec2d(100,100), move=None, color=None, gravity=None, lifetime=None, clone=False, radius=2):
         self.radius = radius
@@ -86,7 +200,7 @@ class Fragment(VectorSprite):
             self.move = v.Vec2d(0,random.randint(5,250))
             self.move.rotate(random.randint(0,360))
         self.clone = clone
-        VectorSprite.__init__(self, pos, self.move)
+        VectorSprite.__init__(self, pos, self.move, color=self.color)
         if lifetime is not None:
             self.lifetime = lifetime
         else:
@@ -122,6 +236,43 @@ class Spark(Fragment):
         if self.age / 10 > 2:
             self.radius = self.age // 10
             self.create_image(self)
+
+
+class Flashlight(Fragment):
+    
+    def __init__(self, pos, radius=15, delay=None, lifetime=None, expand=False):
+        self.radius = radius
+        Fragment.__init__(self, v.Vec2d(pos.x, pos.y), v.Vec2d(0,0),
+                          color=(255,255,255), radius=self.radius)
+        if delay is None:
+            self.delay = random.random() * 0.25
+        else:
+            self.delay = delay
+        if lifetime is None:
+            self.lifetime = random.random() * 0.01 + self.delay
+        else:
+            self.lifetime = lifetime + self.delay
+        self.expand = expand
+        
+    def create_image(self):
+        self.image = pygame.Surface((2*self.radius,2*self.radius))
+        pygame.draw.circle(self.image, self.color, (self.radius, self.radius), self.radius )
+        self.image.set_colorkey((0,0,0))
+        self.image.convert_alpha()
+        
+    def update(self, seconds):
+        self.age += seconds
+        if self.age > self.delay:
+            Fragment.update(self, seconds)
+        else:
+            self.lifetime -= seconds
+            
+    def kill(self):
+        if self.expand and self.radius < 100:
+            Flashlight(self.pos, self.radius+10, 0.0, 0.1, True)
+        Fragment.kill(self)
+        
+
             
 class Smoke(Fragment):
     def create_image(self):
@@ -234,6 +385,15 @@ class Rocket(Fragment):
                         m.rotate(winkel)
                         m *= wieoft2
                 
+                elif explosion == 8:
+                    for x in range(5):
+                        s = v.Vec2d(random.randint(0,50), 0)
+                        s.rotate(random.randint(0,360))
+                        Flashlight( self.pos + s )
+                
+                elif explosion == 9:
+                    Flashlight( self.pos, 2, 0.1, 0.1, True )
+                                   
                 self.kill()
                 
       
@@ -278,6 +438,7 @@ class PygView(object):
             sys.exit()
         self.level = 1
         self.loadbackground()
+        Ufo(v.Vec2d(PygView.width, 50), v.Vec2d(-50,0))
         
     def loadbackground(self):
         self.background = pygame.Surface(self.screen.get_size()).convert()
@@ -322,39 +483,39 @@ class PygView(object):
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         running = False
-                    if event.key == pygame.K_b:
+                    elif event.key == pygame.K_b:
                         self.level +=1
                         self.loadbackground()
-                    if event.key == pygame.K_SPACE:
+                    elif event.key == pygame.K_BACKSPACE:
                         pos = v.Vec2d(self.width//2, self.height//2)
                         m = v.Vec2d(50,0)
                         for _ in range(36):
                             VectorSprite(pos,m)
                             m.rotate(10)
-                    if event.key == pygame.K_0:
+                    elif event.key == pygame.K_0:
                         Rocket(random.choice(ground), pos, ex=0)
-                    if event.key == pygame.K_1:
+                    elif event.key == pygame.K_1:
                         Rocket(random.choice(ground), pos, ex=1)
-                        #Rocket(rightcorner, pos, ex=1)
-                    if event.key == pygame.K_2:
+                    elif event.key == pygame.K_2:
                         Rocket(random.choice(ground), pos, ex=2)
-                        #Rocket(rightcorner, pos, ex=2)
-                    if event.key == pygame.K_3:
+                    elif event.key == pygame.K_3:
                         Rocket(random.choice(ground), pos, ex=3)
-                        #Rocket(rightcorner, pos, ex=3)
-                    if event.key == pygame.K_4:
+                    elif event.key == pygame.K_4:
                         Rocket(random.choice(ground), pos, ex=4)
-                        #Rocket(rightcorner, pos, ex=4)
-                    if event.key == pygame.K_5:
+                    elif event.key == pygame.K_5:
                         Rocket(random.choice(ground), pos, ex=5)
-                        #Rocket(rightcorner, pos, ex=5)
-                    if event.key == pygame.K_6:
+                    elif event.key == pygame.K_6:
                         Rocket(random.choice(ground), pos, ex=6)
-                        #Rocket(rightcorner, pos, ex=6)
-                    if event.key == pygame.K_7:
+                    elif event.key == pygame.K_7:
                         Rocket(random.choice(ground), pos, ex=7)
-                        #Rocket(rightcorner, pos, ex=7)
-                    if event.key == pygame.K_c:
+                    
+                    elif event.key == pygame.K_8:
+                        Rocket(random.choice(ground), pos, ex=8)
+                    elif event.key == pygame.K_9:
+                        Rocket(random.choice(ground), pos, ex=9)
+                    #elif event.key == pygame.K_SPACE:
+                    #    Rocket(random.choice(ground), pos, ex=9) 
+                    elif event.key == pygame.K_c:
                         self.background.fill((255,255,255))
                                         
             # --------- pressed key handler --------------            
