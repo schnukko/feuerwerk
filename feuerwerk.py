@@ -607,9 +607,26 @@ class Kamikaze(VectorSprite):
         VectorSprite.__init__(self, **kwargs)
     
     def paint(self, color):
+        # --- Hülle = 111,111,27, Fülle = 59,59,13
+        
+        
         tmp=pygame.Surface((100, 100))
-        pygame.draw.polygon(tmp, color, 
-          [(40,20), (50,50), (80,80)], 0)
+        pygame.draw.line(tmp,(111,111,27),(40,80),(75,80),7) # kanone unten
+        pygame.draw.line(tmp,(111,111,27),(40,20),(75,20),7)# oben
+        pygame.draw.polygon(tmp, (111,111,27),              
+          [(0,0), (100,50), (0,100),(27,50)], 4)            #hülle
+        pygame.draw.polygon(tmp, (59,59,13), 
+          [(0,0), (100,50), (0,100),(27,50)], 0)            #fülle
+        pygame.draw.circle(tmp, (111,111,27), (50,50), (20),1) #Umkreis atomzeichen
+        pygame.draw.polygon(tmp, (255,255,0),               
+          [(50,50), (44,33), (56,33)], )                    #atomzeichen
+        pygame.draw.polygon(tmp, (255,255,0), 
+          [(50,50), (32,55), (39,64)],0 )                   # --
+        pygame.draw.polygon(tmp, (255,255,0), 
+          [(50,50), (67,55), (60,64)], )                    # --      
+        pygame.draw.circle(tmp, (59,59,13), (50,50), 9,0)   # 2 kreise atomzeichen
+        pygame.draw.circle(tmp, (1,1,1), (50,50), 5,0)      #--
+        
         tmp.set_colorkey((0,0,0))
         tmp.convert_alpha()
         
@@ -629,8 +646,46 @@ class Kamikaze(VectorSprite):
         #------------------
         self.images = [ self.image1, self.image2, self.image3, self.image4]
         self.image = self.images[0]
+        self.image0 = self.image.copy()
         self.rect= self.image.get_rect()
-
+        self.set_angle(270)
+    
+    def update(self, seconds):
+        # --- animate ---
+        #i = self.age *3 % len(self.images)
+        #self.image = self.images[int(i)]
+        # --- chance to throw bomb ---
+        #if random.random() < PygView.bombchance: #0.015:
+         #   m = v.Vec2d(0, -random.random()*75)
+          #  m.rotate(random.randint(-90,90))
+           # Bomb(pos=v.Vec2d(self.pos.x, self.pos.y), move=m,
+            #     gravity = v.Vec2d(0,0.7), kill_on_edge=True, mass=1800, hitpoints=10 )
+        # --- chance to fire Rocket ---
+        if random.random() < 0.05: #PygView.rocketchance: #0.01:
+            m = v.Vec2d(random.randint(0,PygView.width), PygView.height)-self.pos
+            distance = m.get_length()
+            m = m.normalized() 
+            Evil_Rocket(pos=v.Vec2d(self.pos.x, self.pos.y), move=m, speed = 20, 
+                   citynr = None, max_distance = distance, mass=500, hitpoints=20)
+        
+        # --- chance to change move vector ---
+        if random.random() < 0.05:
+             m = v.Vec2d(0, random.randint(-10, 10))
+             m.rotate(random.randint(-120, 120))
+             self.move += m
+        if self.pos.x < 0:
+            self.pos.x = 0
+            self.move.x *= -1
+        elif self.pos.x > PygView.width:
+            self.pos.x = PygView.width
+            self.move.x *= -1
+        if self.pos.y < 0:
+            self.pos.y = 0
+            self.move.y *= -1
+        elif self.pos.y > PygView.height // 2:
+            self.pos.y = PygView.height // 2
+            self.move.y *= -1
+        VectorSprite.update(self, seconds)
          
 class Ufo(VectorSprite):
 
